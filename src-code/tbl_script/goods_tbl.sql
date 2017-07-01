@@ -1,0 +1,12 @@
+USE bubbleshop;
+
+DROP TABLE IF EXISTS `goods`;
+
+CREATE TABLE goods (
+    id SMALLINT NOT NULL AUTO_INCREMENT,
+    name CHAR(20) NOT NULL UNIQUE,
+    kinds VARCHAR(20) NOT NULL,
+    marketprice VARCHAR(20) NOT NULL,
+    img VARCHAR(255) NOT NULL DEFAULT "img_55.png",
+    PRIMARY KEY (id)
+);

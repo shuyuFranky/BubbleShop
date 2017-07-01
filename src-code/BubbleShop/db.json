@@ -1,0 +1,8 @@
+{
+    "dbName" : "bubbleshop",
+    "uName" : "root",
+    "uPwd" : "shuyu",
+    "dbHost" : "localhost",
+    "dbPort" : 3306,
+    "secretName" : "__bubbleshop__"
+}

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>【BubbleShop】</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type='text/css' href='stylesheets/bootstrap.css' />
+<link rel='stylesheet' type='text/css' href='stylesheets/bootstrap-responsive.css' />
+
+<link rel='stylesheet' type='text/css' href='stylesheets/bootstrap.min.css' />
+<link rel='stylesheet' type='text/css' href='stylesheets/shop-homepage.css' />
+
+<style type='text/css'>
+.divider-vertical {float:left;}
+#menuBar li {_float:left; _line-height:40px; _height:30px; _overflow:hidden;}
+.caret {_display:none;}
+</style>
+</head>
+<body>
+
+<div class="navbar">
+    <div class="navbar-inner" style="height:40px; line-height:40px;">
+        <a class="brand" href="javascript:;">BubbleShop</a>
+        <ul class="nav pull-right" id='menuBar'>
+
+            <%if (user.isAdmin) {%>
+                <li class="divider-vertical"></li>
+                <li>
+                    <a href='./updateMenu' target="_blank">更新提货点</a>
+                </li>
+                <li class="divider-vertical"></li>
+                <li>
+                    <a href='./update_priv' target="_blank">更新管理员</a>
+                </li>
+                <li class="divider-vertical"></li>
+                <li>
+                    <a href='./manager/menu'>管理提货点商品</a>
+                </li>
+                <li>
+                    <a href='./manager/list/'>查询提货点订单</a>
+                </li>
+            <%}%>
+            <li class="divider-vertical"></li>
+            <li>
+                <a href='./manager/order_fruit_list/'>查询我的订单</a>
+            </li>
+            <li class="divider-vertical"></li>
+            <li class="divider-vertical"></li>
+               <li>
+                   <a href='javascript:;'>欢迎您，<span style="color:#3399cc;"><%=user.uName%></span></a>
+               </li>
+              <li class="divider-vertical"></li>
+              <li>
+                  <a href="log_out">退　出</a>
+              </li>
+        </ul>
+    </div>
+</div>
+
+
+
+<div class="container" style="position:relative;">
+    <div class="alert alert-error">今天,您要吃水果哦o(∩_∩)o </div>
+
+    <% if (is_admin) { %>
+        <div style="position:absolute; right:10px; top:5px;">
+        <% if (is_close) { %>
+        <button class="btn btn-info" id="btn_status">开启预订</button>
+        <% } else { %>
+        <button class="btn btn-danger" id="btn_status">关闭预订</button>
+        <% } %>
+        </div>
+    <% } %>
+
+    <div class="row"> 
+        <%if (mixi_place) {%>
+            <% mixi_place.forEach(function(menu) {%>
+                <div class="col-sm-4 col-lg-4 col-md-4">
+                    <div class="thumbnail">
+                        <a href="main/<%=menu['id']%>">
+                        <img src="images/store/img_<%=menu['id']%>.png" alt="此处应该有图片">
+                        </a>
+                        <div class="caption">
+                            <h4><a href="main/<%=menu['id']%>"><%= menu["name"] %></a></h4>
+                            <p><strong>地址：</strong><%= menu["address"] %>
+                            <br/>
+                            <strong>联系电话：</strong><%= menu["phone"] %>
+                            <br/>
+                            <strong>营业时间：</strong><%= menu["openinghour"] %></p>
+                        </div>
+                        <div class="ratings">
+                            <p class="pull-right"><%= menu["score"] %> scores</p>
+                            <p>
+                                <span class="glyphicon glyphicon-star"></span>
+                                <span class="glyphicon glyphicon-star"></span>
+                                <span class="glyphicon glyphicon-star"></span>
+                                <%if (menu["score"] < 4.6) {%>
+                                    <span class="glyphicon glyphicon-star-empty"></span>
+                                    <span class="glyphicon glyphicon-star-empty"></span>
+                                <% } else if (menu["score"] < 4.9) { %>
+                                    <span class="glyphicon glyphicon-star"></span>
+                                    <span class="glyphicon glyphicon-star-empty"></span>
+                                <% } else { %>
+                                    <span class="glyphicon glyphicon-star"></span>
+                                    <span class="glyphicon glyphicon-star"></span>
+                                <% } %>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            <% }) %>
+        <% } %>
+    </div>
+
+</div>
+
+<script type="text/javascript" src="javascripts/core.js"></script>
+<script src="javascripts/jquery.js"></script>
+<script src="javascript/jquery_shop.js"></script>
+<script src="javascripts/ajaxmanager.js"></script>
+<script src="javascripts/bootstrap.js"></script>
+<script src="javascripts/bootstrap-dropdown.js"></script>
+<script src="javascript/bootstrap.min.js"></script>
+<script type="text/javascript">
+var userModel = {
+    uId : "<%=user.uId%>",
+    uName : "<%=user.uName%>",
+    isAdmin : "<%=user.isAdmin%>"
+};
+
+$('.dropdown-toggle').dropdown();
+
+<% if (is_admin) { %>
+
+var g_isClose = <%=is_close%>;
+$("#btn_status").click(function() {
+    if (g_isClose) {
+        //开启
+        Ajax("../manager/open_order", {data:{}, 'method':'get'}, function(json) {
+            if (json && json.code == "0") {
+                $("#btn_status").removeClass("btn-info").addClass("btn-danger").html("关闭预订");
+                g_isClose = false;
+            } else {
+                alert(json.msg);
+            }
+        }, function() {
+            alert("请求出错，请联系管理员");
+        });
+    } else {
+        //关闭
+        Ajax("../manager/close_order", {data:{}, 'method':'get'}, function(json) {
+            if (json && json.code == "0") {
+                $("#btn_status").removeClass("btn-danger").addClass("btn-info").html("开启预订");
+                g_isClose = true;
+            } else {
+                alert(json.msg);
+            }
+        }, function() {
+            alert("请求出错，请联系管理员");
+        });
+    }
+});
+<% } %>
+</script>
+
+</body>
+</html>

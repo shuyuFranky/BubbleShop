@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>【BubbleShop】</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type='text/css' href='../../stylesheets/bootstrap.css' />
+<link rel='stylesheet' type='text/css' href='../../stylesheets/bootstrap-responsive.css' />
+<link rel='stylesheet' type='text/css' href='../../javascripts/datepicker/css/datepicker.css' />
+<style type='text/css'>
+td,th {text-align:center !important;}
+.divider-vertical {float:left;}
+#menuBar li {_float:left; _line-height:40px; _height:30px; _overflow:hidden;}
+
+.query-form label, .query-form input, .query-form select, .query-form button{float:left;}
+.query-form label {height:28px; line-height:28px;}
+.mr_20 {margin-right:20px;}
+</style>
+</head>
+<body>
+<div class="navbar">
+    <div class="navbar-inner" style="height:40px; line-height:40px;">
+        <a class="brand" href="javascript:;">BubbleShop</a>
+        <ul class="nav pull-right" id='menuBar'>
+        	<li>
+        		<a href='javascript:;'>欢迎您，<span style="color:#3399cc;"><%=user.uName%></span></a>
+        	</li>
+        	<li class="divider-vertical"></li>
+            <li>
+                <a href='../order_fruit_list/'>订单明细</a>
+            </li>
+            <li>
+                <a href="../../main">返回BubbleShop</a>
+            </li>
+        	<li class="divider-vertical"></li>
+            <li>
+                <a href="../../log_out">退　出</a>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<div class="container">
+    <div class="alert alert-success">
+    <%if (!user.isAdmin) {%>
+        <p>您工作的提货点：<%= list_data[0].s_name %> ID：<%= list_data[0].s_id %></p>
+    <%} %>
+    </div>
+
+    <div class="query-form" style="float:left">
+        <label> 请输入日期查询某一天订单（格式：YYYY-MM-DD）：</label>
+        <input type='text' value='' style="width:50px;" class="mr_20" id="fuckyou" />
+        <button class="btn btn-success" id="fuckme" onClick="">查　询</button>
+    </div>    
+    <%if (user.isAdmin) {%>
+    <div class="query-form" style="float:right " >
+            <label> 查寻提货点订单：</label>
+            <input type='text' value='' style="width:50px;" class="mr_20" id="querystore" />
+            <button class="btn btn-success" id="qstore" onClick="">查　询</button>   
+    </div>
+    <%} %>
+    <br/>
+    <br/>
+    <div class="alert alert-success">
+        <p>该提货点近期订单如下，可以凭【订单ID】去订单明细页面查询订单明细o(∩_∩)o </p>
+    </div>
+    <table class="table table-bordered">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>订单ID</th>
+              <th>顾客ID</th>
+              <th>商品数量</th>
+              <th>总价格</th>
+              <th>提货码</th>
+              <th>下单时间</th>
+            </tr>
+          </thead>
+          <tbody>
+
+            <%if (list_data.length > 0) {%>
+                <% for (var i = 0, len = list_data.length; i < len; i++) {%>
+                    <%var idx = i + 1; data = list_data[i];%>
+                    <tr>
+                        <td><%=idx%></td>
+                        <td><%=data.orderform_id%></td>
+                        <td><%=data.c_id%></td>
+                        <td><%=data.g_num%></td>
+                        <td><%=data.price%></td>
+                        <td><%=data.code%></td>
+                        <td><%=new Date(data.c_time).format("YYYY-MM-dd")%></td>
+                    </tr>
+                <%}%>
+            <%} else {%>
+                <tr><td colspan="9">暂无相关数据</td></tr>
+            <%}%>
+
+          </tbody>
+          <%if (list_data.length > 0) {%>
+          <tfoot>
+            <tr style="background-color:#ddd"><td colspan="9" style="text-align:right !important; padding-right:10px; font-size:16px;">订单总数：<%=list_data.length%></td></tr>
+          </tfoot>
+          <%}%>
+    </table>
+</div>
+
+<script type="text/javascript" src="../../javascripts/core.js"></script>
+<script src="../../javascripts/jquery.js"></script>
+<script src="../../javascripts/ajaxmanager.js"></script>
+<script src="../../javascripts/datepicker/js/bootstrap-datepicker.js"></script>
+<script type="text/javascript">
+$('#queryDate').datepicker({
+	onRender: function(date) {
+	    var curr_date = <%= new Date().getTime()%>;
+		return date.valueOf() > curr_date ? 'disabled' : '';
+	},
+	format : 'yyyy-mm-dd'
+}).on('changeDate', function(ev) {
+	//ev.date.valueOf()
+}).data('datepicker')
+</script>
+
+<script type="text/javascript">
+$("#fuckme").click(function(){
+    alert("网络连接出错");
+})
+$("#qstore").click(function(){
+    var store_id = $('#querystore').val()
+    if(store_id == ""){
+        alert("请输入提货点ID");
+        return ;
+    }
+    else {
+        Ajax("../querystore", {data:{store_id : store_id}, 'method':'post'}, function(json){
+            if(json && json.errno == 0){
+                window.location.reload();
+            }
+            else{
+                alert("查询出错," + json.msg);
+            }
+        })
+    }
+})
+
+</script>
+</body>
+</html>

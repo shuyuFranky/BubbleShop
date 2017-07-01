@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>【BubbleShop】</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type='text/css' href='../../stylesheets/bootstrap.css' />
+<link rel='stylesheet' type='text/css' href='../../stylesheets/bootstrap-responsive.css' />
+<link rel='stylesheet' type='text/css' href='../../javascripts/datepicker/css/datepicker.css' />
+<style type='text/css'>
+td,th {text-align:center !important;}
+.divider-vertical {float:left;}
+#menuBar li {_float:left; _line-height:40px; _height:30px; _overflow:hidden;}
+
+.query-form label, .query-form input, .query-form select, .query-form button{float:left;}
+.query-form label {height:28px; line-height:28px;}
+.mr_20 {margin-right:20px;}
+</style>
+</head>
+<body>
+<div class="navbar">
+    <div class="navbar-inner" style="height:40px; line-height:40px;">
+        <a class="brand" href="javascript:;">BubbleShop</a>
+        <ul class="nav pull-right" id='menuBar'>
+        	<li>
+        		<a href='javascript:;'>欢迎您，<span style="color:#3399cc;"><%=user.uName%></span></a>
+        	</li>
+        	<li class="divider-vertical"></li>
+            <li>
+                <a href="../../main">返回BubbleShop</a>
+            </li>
+        	<li class="divider-vertical"></li>
+            <li>
+                <a href="../../log_out">退　出</a>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<div class="container">
+    <div class="alert alert-success">
+        <a class="close" data-dismiss="alert">×</a>
+        <% if (list_data.length > 0) { %>
+            <p><strong>提醒：</strong>您最近一次订单信息如下，可通过订单号查询早期订单o(∩_∩)o </p>
+        <%} else {%>
+            <p><strong>提醒：</strong>没有发现您近期订单，您可以尝试通过订单号查询o(∩_∩)o </p>
+        <%}%>
+      
+    </div>
+
+    <div class="query-form">
+        <label>输入订单ID查询 ：</label>
+        <input type='text' value='' style="width:50px;" class="mr_20" id="fuckyou" />
+        <button class="btn btn-success" id="fuckme" onClick="../orderId">查　询</button>
+    </div>
+
+    <table class="table table-bordered">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>商品</th>
+              <th>数量</th>
+              <th>单价</th>
+              <th>提货点</th>
+              <th>日期</th>
+            </tr>
+          </thead>
+          <tbody>
+
+            <%if (list_data.length > 0) {%>
+                <% for (var i = 0, len = list_data.length; i < len; i++) {%>
+                    <%var idx = i + 1; data = list_data[i];%>
+                    <tr>
+                        <td><%=idx%></td>
+                        <td><%=data.goods_name%></td>
+                        <td><%=data.goods_num%></td>
+                        <td><%=data.per_price%></td>
+                        <td><%=data.store_name%></td>
+                        <td><%=new Date(data.d_date).format("YYYY-MM-dd")%></td>
+                    </tr>
+                <%}%>
+            <%} else {%>
+                <tr><td colspan="9">暂无相关数据</td></tr>
+            <%}%>
+
+          </tbody>
+          <%if (list_data.length > 0) {%>
+          <tfoot>
+            <tr style="background-color:#ddd"><td colspan="9" style="text-align:right !important; padding-right:10px; font-size:16px;">总价：<%=total_price%></td></tr>
+          </tfoot>
+          <%}%>
+    </table>
+</div>
+
+<script type="text/javascript" src="../../javascripts/core.js"></script>
+<script src="../../javascripts/jquery.js"></script>
+<script src="../../javascripts/ajaxmanager.js"></script>
+<script src="../../javascripts/datepicker/js/bootstrap-datepicker.js"></script>
+<script type="text/javascript">
+$('#queryDate').datepicker({
+	onRender: function(date) {
+	    var curr_date = <%= new Date().getTime()%>;
+		return date.valueOf() > curr_date ? 'disabled' : '';
+	},
+	format : 'yyyy-mm-dd'
+}).on('changeDate', function(ev) {
+	//ev.date.valueOf()
+}).data('datepicker')
+</script>
+
+<script type="text/javascript">
+$("#fuckme").click(function(){
+    var order_id = $('#fuckyou').val()
+    if(order_id == ""){
+        alert("请输入订单ID");
+        return ;
+    }
+    else {
+        Ajax("../orderId", {data:{orderid : order_id}, 'method':'post'}, function(json){
+            if(json && json.errno == 0){
+                window.location.reload()
+            }
+            else{
+                alert(json.msg);
+            }
+        })
+    }
+})
+
+</script>
+</body>
+</html>
